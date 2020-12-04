@@ -17,14 +17,14 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
     <nav>
-      <div class="white nav-wrapper">
+      <div class="white nav-wrapper z-depth-2">
         <a href="#" class="pink-text text-accent-1 brand-logo">SanoBot</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
         </ul>
       </div>
     </nav>
 
-    <div class="row">
+    <div class="row" style='background-image: url("{{ url_for('static', filename='BlueBackground.jpg') }}"); background-size: cover; background-position: center;'>
         <div class="col s12 m8 offset-m2 l6 offset-l3">
           <div id="chatarea" class="z-depth-2">
             <div id="chatbox">

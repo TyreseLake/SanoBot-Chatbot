@@ -1,7 +1,6 @@
 from flask import Flask, request, render_template
 import os
 import dialogflow
-import json
 from google.api_core.exceptions import InvalidArgument
 
 #add bot credentials
