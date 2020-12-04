@@ -3,112 +3,137 @@ import pandas as pd
 
 data = pd.read_csv("illnesses.csv") #load the list of symptoms and illnesses
 
+#this function gets a list of illnesses from inputted symptoms
+def getIllnesses(symptoms):
+  illnesses = []
+  illnesses = [x[0] for x in data.values.tolist() if set(symptoms) <= set(x)]
+  illnesses = list(dict.fromkeys(illnesses))
+  return illnesses
+  
+#this function gets the conversational name of a illness
 def getName(d):
   illness_dict = {
     "Fungal Infection":"a fungal infection",
     "Allergy":"an allergic reaction",
     "Common Cold":"the common cold",
     "Pneumonia":"pneumonia",
+    "Tuberculosis": "tuberculosis",
     "Diabetes":"diabetes",
-    "Chicken Pox":"chicken pox"
+    "Chicken Pox":"chicken pox",
+    "Dengue":"dengue fever"
   }
   if d in illness_dict:
     return illness_dict[d]
   else:
     return None
-  
+
+#this function determines if an illness is contagious
 def isContagious(d):
   contagious_dict = {
     "Fungal Infection":1,
     "Allergy":0,
     "Common Cold":1,
     "Pneumonia":1,
+    "Tuberculosis": 2,
     "Diabetes":0,
-    "Chicken Pox":2
+    "Chicken Pox":2,
+    "Dengue":0
   }
   if d in contagious_dict:
     return contagious_dict[d]
   else:
     return None
 
+#this creates a response given a list of illnesses
+def getIllnessResponse(illnesses):
+  if(illnesses == []):
+    response = "Unfortunately, right now I am unable to determine whats wrong. We would need to run some tests first to figure out the issue."
+  else:
+    statement = ""
+    for x, illness in enumerate(illnesses):
+      if x > 0:
+        if x < len(illnesses)-1:
+          statement += ", "
+        else:
+          statement += " or "
+      print(illness)
+      statement += getName(illness)
+    contagiousStatement = ""
+    contagious = [isContagious(d) for d in illnesses]
+    if max(contagious)==1:
+      contagiousStatement = "This may be mildly contagious, so avoid too much physical contact with anyone. "
+    elif max(contagious)>1:
+      contagiousStatement = "This may be very contagious. Avoid being in close proximity to others and conact a doctor immediately. "
+    response = "You may have " + statement + ". " + contagiousStatement + "Please be careful."
+  return response
+
+#this removes a context from a list of contexts
+def removeContext(outputContexts, context):
+  newOutputContexts = []
+  for d in outputContexts:
+    if not d['name'].endswith(context):
+      newOutputContexts.append(d)
+  return outputContexts
+
+def getSymptomsFromContext(outputContexts):
+  symptoms = []
+  for d in outputContexts:
+      if d['name'].endswith("symptomslist"):
+        symptoms = d['parameters'].get('symptomslist')
+  return symptoms
+
 app = Flask(__name__)
 
+#default route
 @app.route('/')
 def hello_world():
     return "Hello world!"
-    
+
+#route used for dialog webhook requests    
 @app.route('/webhook', methods=['POST'])
 def webhook():
-  #Extract request from dialogueflow
-  req = request.get_json(silent=True, force=True)
+  req = request.get_json(silent=True, force=True) #Extract request from dialogueflow
 
-  #set the default fullfillment responce text to nothing
-  text = {}
+  text = {} #set the default fullfillment response text to nothing
 
-  #Get the query result from the request
-  query_result = req.get('queryResult')
+  query_result = req.get('queryResult') #Get the query result from the request
+
+  outputContexts = query_result.get('outputContexts')  #get the current output context
+
+  #if the intent uses the getSymptom function
   if query_result.get('action') == 'getSymptoms':
-    #make one context with all symptoms as a paramter
-    outputContexts = query_result.get('outputContexts')  #get the current output context
-
-    symptoms = []
-    for d in outputContexts:
-      if d['name'].endswith("symptomslist"):
-        symptoms = d['parameters'].get('symptomslist')
+    #make one context with all symptoms as a parameter
+    symptoms = getSymptomsFromContext(outputContexts)
 
     userEnteredSymptoms = query_result.get('parameters').get('symptoms') #get the newly entered symptoms from the user
 
     newSymptoms = list(dict.fromkeys(symptoms + userEnteredSymptoms)) #combine the symptomsList and new symtpoms and remove duplicates
 
-    newOutputContexts = []
-    for d in outputContexts:
-      if not d['name'].endswith("symptomslist"):
-        newOutputContexts.append(d)
-
     newSymptomsListContext = { #create a new symptoms list context with the updated user entered symptoms
-        "name": req.get('session')+"/contexts/symptomslist",
-        "lifespanCount": 5,
-        "parameters" : {"symptomslist" : newSymptoms}
-        }
+      "name": req.get('session')+"/contexts/symptomslist",
+      "lifespanCount": 5,
+      "parameters" : {"symptomslist" : newSymptoms}
+    }
+
+    newOutputContexts = removeContext(outputContexts, "symptomslist") #remove the symptomslist context
     
     newOutputContexts.append(newSymptomsListContext) #append the newly created symptoms list context to the new output contexts
     text = {
       "outputContexts": newOutputContexts
     }
 
+  #if the intent uses the finishSymptom function
   if query_result.get('action') == 'finishSymptoms':
-    outputContexts = query_result.get('outputContexts')
+    symptoms = getSymptomsFromContext(outputContexts)
+    
+    illnesses = getIllnesses(symptoms)
+    
+    statement = getIllnessResponse(illnesses)
+    text = {
+      "fulfillmentText": statement
+    }
 
-    symptoms = []
-    for d in outputContexts:
-      if d['name'].endswith("symptomslist"):
-        symptoms = d['parameters'].get('symptomslist')
-        illnesses = [x[0] for x in data.values.tolist() if set(symptoms) <= set(x)]
-        illnesses = list(dict.fromkeys(illnesses))
-    if(illnesses == []):
-      text = {
-        "fulfillmentText": "Unfortunately, right now I am unable to determine whats wrong. We would need to run some tests first to figure out the issue."
-      }
-    else:
-      statement = ""
-      for x, illness in enumerate(illnesses):
-        if x > 0:
-          if x < len(illnesses)-1:
-            statement += ", "
-          else:
-            statement += " or "
-        statement += getName(illness)
-      contagiousStatement = ""
-      contagious = [isContagious(d) for d in illnesses]
-      if max(contagious)==1:
-        contagiousStatement = "This is mildly contagious, so avoid too much physical contact with anyone. "
-      elif max(contagious)>1:
-        contagiousStatement = "This is very contagious. Avoid being in close proximity to others and conact a doctor immediately. "
-      text = {
-        "fulfillmentText": "You may have " + statement + ". " + contagiousStatement + "Please be careful."
-      }
-
-  #return responce to dialogflow
+  #return response to dialogflow
   return text
    
 if __name__ == '__main__':
