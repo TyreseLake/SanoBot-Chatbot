@@ -5,6 +5,8 @@ data = pd.read_csv("illnesses.csv") #load the list of symptoms and illnesses
 
 #this function gets a list of illnesses from inputted symptoms
 def getIllnesses(symptoms):
+  if not type(symptoms) is list:
+    raise ValueError("Expected a List")
   illnesses = []
   illnesses = [x[0] for x in data.values.tolist() if set(symptoms) <= set(x)]
   illnesses = list(dict.fromkeys(illnesses))
@@ -12,6 +14,8 @@ def getIllnesses(symptoms):
   
 #this function gets the conversational name of a illness
 def getName(d):
+  if not type(d) is str:
+    raise ValueError("Expected a String")
   illness_dict = {
     "Fungal Infection":"a fungal infection",
     "Allergy":"an allergic reaction",
@@ -29,6 +33,8 @@ def getName(d):
 
 #this function determines if an illness is contagious
 def isContagious(d):
+  if not type(d) is str:
+    raise ValueError("Expected a String")
   contagious_dict = {
     "Fungal Infection":1,
     "Allergy":0,
@@ -46,6 +52,8 @@ def isContagious(d):
 
 #this creates a response given a list of illnesses
 def getIllnessResponse(illnesses):
+  if not type(illnesses) is list:
+    raise ValueError("Expected a List")
   if(illnesses == []):
     response = "Unfortunately, right now I am unable to determine whats wrong. We would need to run some tests first to figure out the issue."
   else:
@@ -56,30 +64,59 @@ def getIllnessResponse(illnesses):
           statement += ", "
         else:
           statement += " or "
-      print(illness)
-      statement += getName(illness)
+      illnessName = getName(illness)
+      if (illnessName is None):
+        raise TypeError("Invalid illness such as NoneType")
+      else:
+        statement += illnessName
     contagiousStatement = ""
     contagious = [isContagious(d) for d in illnesses]
     if max(contagious)==1:
       contagiousStatement = "This may be mildly contagious, so avoid too much physical contact with anyone. "
     elif max(contagious)>1:
-      contagiousStatement = "This may be very contagious. Avoid being in close proximity to others and conact a doctor immediately. "
+      contagiousStatement = "This may be very contagious. Avoid being in close proximity to others and contact a doctor immediately. "
     response = "You may have " + statement + ". " + contagiousStatement + "Please be careful."
   return response
 
 #this removes a context from a list of contexts
 def removeContext(outputContexts, context):
+  if not type(outputContexts) is list:
+    raise ValueError("Expected a List")
+
+  if not type(context) is str:
+    raise ValueError("Expected a String")
+
   newOutputContexts = []
+
   for d in outputContexts:
+    if not type(d) is dict:
+      raise ValueError("Expected a Dictionary")
+
+    if 'name' not in d:
+      raise ValueError("Expected a Dictionary with 'name' key")
+
     if not d['name'].endswith(context):
       newOutputContexts.append(d)
-  return outputContexts
 
+  return newOutputContexts
+
+#gets a list of symptoms from output context
 def getSymptomsFromContext(outputContexts):
+  if not type(outputContexts) is list:
+    raise ValueError("Expected a List")
+
   symptoms = []
+
   for d in outputContexts:
-      if d['name'].endswith("symptomslist"):
-        symptoms = d['parameters'].get('symptomslist')
+    if not type(d) is dict:
+      raise ValueError("Expected a Dictionary")
+
+    if 'name' not in d:
+      raise ValueError("Expected a Dictionary with 'name' key")
+      
+    if d['name'].endswith("symptomslist"):
+      symptoms = d['parameters'].get('symptomslist')
+
   return symptoms
 
 app = Flask(__name__)
@@ -138,4 +175,3 @@ def webhook():
    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
-
