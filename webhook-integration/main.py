@@ -1,4 +1,8 @@
 from flask import Flask, request
+import pandas as pd
+
+data = pd.read_csv("illnesses.csv") #load the list of symptoms and illnesses
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -46,7 +50,37 @@ def webhook():
     text = {
       "outputContexts": newOutputContexts
     }
-  
+  if query_result.get('action') == 'finishSymptoms':
+    outputContexts = query_result.get('outputContexts')
+
+    symptoms = []
+    for d in outputContexts:
+      if d['name'].endswith("symptomslist"):
+        symptoms = d['parameters'].get('symptomslist')
+        illnesses = [x[0] for x in data.values.tolist() if set(symptoms) <= set(x)]
+        illnesses = list(dict.fromkeys(illnesses))
+    if(illnesses == []):
+      text = {
+      "fulfillmentText": "Unfortunately, right now I am unable to determine whats wrong. We would need to run some tests first to figure out the issue."
+        #"outputContexts": {
+        #  "name": req.get('session')+"/contexts/illness",
+        #  "lifespanCount": 1,
+        #  "parameters" : {"illnesses" : illnesses}
+        #  }
+      }
+    else:
+      statement = ""
+      for x, illness in enumerate(illnesses):
+        if x > 0:
+          if x < len(illnesses)-1:
+            statement += ", "
+          else:
+            statement += " or "
+        statement += illness
+      text = {
+        "fulfillmentText": "You may have " + statement + ". Please be careful."
+      }
+
   #return responce to dialogflow
   return text
    
