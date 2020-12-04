@@ -3,6 +3,34 @@ import pandas as pd
 
 data = pd.read_csv("illnesses.csv") #load the list of symptoms and illnesses
 
+def getName(d):
+  illness_dict = {
+    "Fungal Infection":"a fungal infection",
+    "Allergy":"an allergic reaction",
+    "Common Cold":"the common cold",
+    "Pneumonia":"pneumonia",
+    "Diabetes":"diabetes",
+    "Chicken Pox":"chicken pox"
+  }
+  if d in illness_dict:
+    return illness_dict[d]
+  else:
+    return None
+  
+def isContagious(d):
+  contagious_dict = {
+    "Fungal Infection":1,
+    "Allergy":0,
+    "Common Cold":1,
+    "Pneumonia":1,
+    "Diabetes":0,
+    "Chicken Pox":2
+  }
+  if d in contagious_dict:
+    return contagious_dict[d]
+  else:
+    return None
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -11,7 +39,7 @@ def hello_world():
     
 @app.route('/webhook', methods=['POST'])
 def webhook():
-  #Extract request from dialogueflow 
+  #Extract request from dialogueflow
   req = request.get_json(silent=True, force=True)
 
   #set the default fullfillment responce text to nothing
@@ -25,7 +53,6 @@ def webhook():
 
     symptoms = []
     for d in outputContexts:
-      print(d['name'])
       if d['name'].endswith("symptomslist"):
         symptoms = d['parameters'].get('symptomslist')
 
@@ -45,11 +72,10 @@ def webhook():
         }
     
     newOutputContexts.append(newSymptomsListContext) #append the newly created symptoms list context to the new output contexts
-    
-    print(newOutputContexts)
     text = {
       "outputContexts": newOutputContexts
     }
+
   if query_result.get('action') == 'finishSymptoms':
     outputContexts = query_result.get('outputContexts')
 
@@ -61,12 +87,7 @@ def webhook():
         illnesses = list(dict.fromkeys(illnesses))
     if(illnesses == []):
       text = {
-      "fulfillmentText": "Unfortunately, right now I am unable to determine whats wrong. We would need to run some tests first to figure out the issue."
-        #"outputContexts": {
-        #  "name": req.get('session')+"/contexts/illness",
-        #  "lifespanCount": 1,
-        #  "parameters" : {"illnesses" : illnesses}
-        #  }
+        "fulfillmentText": "Unfortunately, right now I am unable to determine whats wrong. We would need to run some tests first to figure out the issue."
       }
     else:
       statement = ""
@@ -76,9 +97,15 @@ def webhook():
             statement += ", "
           else:
             statement += " or "
-        statement += illness
+        statement += getName(illness)
+      contagiousStatement = ""
+      contagious = [isContagious(d) for d in illnesses]
+      if max(contagious)==1:
+        contagiousStatement = "This is mildly contagious, so avoid too much physical contact with anyone. "
+      elif max(contagious)>1:
+        contagiousStatement = "This is very contagious. Avoid being in close proximity to others and conact a doctor immediately. "
       text = {
-        "fulfillmentText": "You may have " + statement + ". Please be careful."
+        "fulfillmentText": "You may have " + statement + ". " + contagiousStatement + "Please be careful."
       }
 
   #return responce to dialogflow
@@ -87,135 +114,3 @@ def webhook():
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
 
-"""
-  if query_result.get('action') == 'initialSymptom.sneezing':
-    text = {
-        "fulfillmentText": "Alright, have you also been experiencing shivers?",
-        "outputContexts": [
-            {
-                "name": req.get('session')+"/contexts/shiveringQuery",
-                "lifespanCount": 5
-            }
-        ],
-        "fulfillmentMessages": [{
-            "payload": {
-                "message": "Alright, have you also been experiencing shivers?",
-                "platform": "kommunicate",
-                "metadata": {
-                    "contentType": "300",
-                    "templateId": "6",
-                    "payload": [{
-                        "title": "Yes",
-                        "message": "Yes"
-                    }, {
-                        "title": "No ",
-                        "message": "No"
-                    }]
-                }
-            }
-        }]
-    }
-  elif query_result.get('action') == 'initialSymptom.coughing':
-    text = {
-      "fulfillmentText": "Okay, do you get a runny nose often?",
-      "outputContexts": [
-            {
-                "name": req.get('session')+"/contexts/coughingQuery",
-                "lifespanCount": 5
-            }
-        ],
-      "fulfillmentMessages": [{
-          "payload": {
-              "message": "Okay, do you get a runny nose often?",
-              "platform": "kommunicate",
-              "metadata": {
-                  "contentType": "300",
-                  "templateId": "6",
-                  "payload": [{
-                      "title": "Yes",
-                      "message": "Yes"
-                  }, {
-                      "title": "No ",
-                      "message": "No"
-                  }]
-              }
-            }
-        }]
-    }
-  elif query_result.get('action') == 'nextSymptom.shivering':
-    status = query_result.get('parameters').get('status')
-    if status == "true":
-      text = {
-        "fulfillmentText": "Im sorry, you may have a cold!",
-        "fulfillmentMessages": [{
-          "payload": {
-              "message": "Im sorry, you may have a cold!",
-              "platform": "kommunicate"
-            }
-          }]
-      }
-    elif status == "false":
-      text = {
-        "fulfillmentText": "You will be okay, get some rest.",
-        "fulfillmentMessages": [{
-          "payload": {
-              "message": "You will be okay, get some rest.",
-              "platform": "kommunicate"
-            }
-          }]
-        }
-  elif query_result.get('action') == 'nextSymptom.coughing':
-    status = query_result.get('parameters').get('status')
-    if status == "true":
-      text = {
-        "fulfillmentText": "Oh no, you may be getting the virus!",
-        "fulfillmentMessages": [{
-          "payload": {
-              "message": "Oh no, you may be getting the virus!",
-              "platform": "kommunicate"
-            }
-          }]
-      }
-    elif status == "false":
-      text = {
-        "fulfillmentText": "Get some rest. Let me know if things get worse.",
-        "fulfillmentMessages": [{
-          "payload": {
-              "message": "Get some rest. Let me know if things get worse.",
-              "platform": "kommunicate"
-            }
-          }]
-        }
-"""
-
-"""
-  #dialogflow_response = DialogflowResponse("Have you been experiencing shivering?")
-  #dialogflow_response.add(Suggestions(["Yes","No"]))
-  #dialogflow_response.add(SystemIntent("actions.intent.Default_Welcome_Intent"))
-  #return dialogflow_response.get_final_response()
-
-text = {
-    "fulfillmentText": "render a text message from webhook",
-    "fulfillmentMessages": [{
-        "payload": {
-            "message": "render a Actionable message from webhook",
-            "platform": "kommunicate",
-            "metadata": {
-                "contentType": "300",
-                "templateId": "6",
-                "payload": [{
-                    "title": "Yes",
-                    "message": "Cool! send me more."
-                }, {
-                    "title": "No ",
-                    "message": "Don't send it to me again"
-                }]
-            }
-        }
-    }, {
-        "text": {
-            "text": ["render array of  text message from webhook"]
-        }
-    }]
-}
-"""
