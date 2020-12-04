@@ -11,10 +11,49 @@ def webhook():
   req = request.get_json(silent=True, force=True)
 
   #set the default fullfillment responce text to nothing
-  text = {"fulfillmentText": ""}
+  text = {}
 
   #Get the query result from the request
   query_result = req.get('queryResult')
+  if query_result.get('action') == 'getSymptoms':
+    #make one context with all symptoms as a paramter
+    outputContexts = query_result.get('outputContexts')  #get the current output context
+
+    symptoms = []
+    for d in outputContexts:
+      print(d['name'])
+      if d['name'].endswith("symptomslist"):
+        symptoms = d['parameters'].get('symptomslist')
+
+    userEnteredSymptoms = query_result.get('parameters').get('symptoms') #get the newly entered symptoms from the user
+
+    newSymptoms = list(dict.fromkeys(symptoms + userEnteredSymptoms)) #combine the symptomsList and new symtpoms and remove duplicates
+
+    newOutputContexts = []
+    for d in outputContexts:
+      if not d['name'].endswith("symptomslist"):
+        newOutputContexts.append(d)
+
+    newSymptomsListContext = { #create a new symptoms list context with the updated user entered symptoms
+        "name": req.get('session')+"/contexts/symptomslist",
+        "lifespanCount": 5,
+        "parameters" : {"symptomslist" : newSymptoms}
+        }
+    
+    newOutputContexts.append(newSymptomsListContext) #append the newly created symptoms list context to the new output contexts
+    
+    print(newOutputContexts)
+    text = {
+      "outputContexts": newOutputContexts
+    }
+  
+  #return responce to dialogflow
+  return text
+   
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
+
+"""
   if query_result.get('action') == 'initialSymptom.sneezing':
     text = {
         "fulfillmentText": "Alright, have you also been experiencing shivers?",
@@ -113,12 +152,7 @@ def webhook():
             }
           }]
         }
-
-  #return responce to dialogflow
-  return text
-   
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+"""
 
 """
   #dialogflow_response = DialogflowResponse("Have you been experiencing shivering?")
