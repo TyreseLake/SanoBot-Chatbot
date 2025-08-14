@@ -39,7 +39,8 @@ This Repository contains for main folders:
  4. Select the correct JSON file for your Dialogflow fulfillment and take a note of the URL of the file (e.g. https://${PROJECTID}.firebaseapp.com/main.py/webhook)
  5. Go to the Dialogflow console and select Fulfillment from the left navigation menu.
  6. Enable Webhook > URL to the URL of the JSON file from the previous step, then select Save.
-
+ 
+ 
 ### Application Interface
  1. Set up the FLASK server in the _application-interface_ directory
  2. Run the server and navigate to the "/home" route
@@ -54,10 +55,36 @@ This Repository contains for main folders:
     - Now to create your json key, select your new service account and select *Add Key*
     - Select the _JSON_ optionand select create and this will give u the key.json
  4. Add the key.json file to your FLASK servers static folder and modify the _main.py_ code and add the bot credentials, 'key.json', with ur new key file.
- 5. Change the project id to the project id of your create agent
- 6. Change the session id to somthing uniue, e.g. "my_session_id"
- 
- ### Running Test Cases
- 1. Add the *test_main.py* from the _webhook-integration-unit-tests_ directory to your main.py for your webhook inegration server.
- 2. Install the "unittest" library in python
- 3. Type the command "unittest -m test_main.py" to run the unit tests.
+5. In the Dialogflow console, go to **Fulfillment**, enable **Webhook**, paste the JSON file URL, and click **Save**.
+
+---
+
+# Application Interface
+
+1. Set up the **FLASK** server located in the **`_application-interface`** directory.
+2. Run the server and navigate to the `/home` route.
+3. Add your agent’s **`key.json`** credentials to the code:
+- In Dialogflow, go to **Settings** → click your **Project ID** (this opens Google Cloud Console).
+- Select **Go to project settings**.
+- Create a new **Service Account**.
+- Fill in the details and click **Create**.
+- Assign the role **Dialogflow API Client** or **Dialogflow API Admin**.
+- Click **Continue** → **Done**.
+- To generate your key file:
+  - Select your new service account.
+  - Click **Add Key** → choose **JSON** → click **Create**.  
+    This downloads your `key.json`.
+4. Place `key.json` in your Flask server’s **static** folder.
+5. Update **`main.py`** to use the new `key.json` and your bot credentials.
+6. Change the **project ID** in the code to match your Dialogflow agent.
+7. Set a unique **session ID** (e.g., `"my_session_id"`).
+
+---
+
+# Running Test Cases
+
+1. Copy `test_main.py` from the **`_webhook-integration-unit-tests`** directory into your webhook integration server directory.
+2. Install Python’s **unittest** module (usually included with Python by default).
+3. Run:
+```bash
+python -m unittest test_main.py
