@@ -1,12 +1,12 @@
 {
   "type": "service_account",
-  "project_id": "sano-sinw",
-  "private_key_id": "d733cd018a5127528f9ce82674519fa2b81f9f8e",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDWXG9y6DKZihdF\nddnrW7BNXz2I82gQEtASXwW6oeTH9Nn1ClkDfkrXCXfc4S903Ag04Sb2aHKW52b6\n3Iq1O8KxAhR2GeyH5+eelPzf/ScMoDYaObHlpQtA63PxWS8quvVkH9+OKwMLpkUC\nyS7/QTUQZ0qPLI8rQZsUc1GiKItz3aWbr1zFLvKNPifchGUnif8N4xrSB5U2eYO0\nYBq9vCRA3usCpbQXQ3iqWZbxKZbVDAPGV8DXGMLAbO0nE2W7DTtkUAmi9sDqjls7\nLAMOFl8AszBc5nyMO+Dy6kgjJ2DgL186GHU4cTtf6TtXZAKexic97/lFLCEsXreL\nCcNlGeYJAgMBAAECggEAAInIEP8mG9nd1mCMHIwYyq0heCjqMqnZDDn/qPIWHSHv\nUhCij/Xx5+viMC8MFMQCF3UKT2iAJ9HvcNoKwwTrRg4SfwgtTDa5cQiDWYy3qu3+\nz3JI1AmcyO40gWPi9UOUMSZUxA1+4ScDXNIeWZboummyQ8Z6CE8g1g0wjCmQIu3h\nhxYjRnwtGy0p18wMCnKjHzAXAlUgHy4fbidV5XiJn2I1ImncDXenIuTrKGOrafJ5\nnJaJKKdCpqNZDLKjcc4lgPXhB6Dcwq9NSEfTSMgXCshcceHa8+oslCbxEgyaTfCE\nlgImxmOWL4S1d+dmmbV13+jntK5x9yJiAb74i4oQHwKBgQDtV1LdfQQWP56+2DfJ\nmXIsmgZGzrDv5a9GX561oTAf4wi9GmYdib1yctzz0DY1hVbWr1hT3s+OmFxsET2k\n3IRimTH3aNnUccydm4A7CAsJuWltrV3jgNWMo2iHs1SChSEfvvDOfUitRZ97DfBZ\nlJA6DeoS0nu76oasLrbcp0COFwKBgQDnNp7VNt61KAy6rsEZUm/pZQy2wleIIdji\newOffsZmDw1rIpl39zgcZ+1QOva5SmX2R7OMmy0PRanKP0CMImcaHjNivuR+8CiV\no0glwn1A4Yj4pfRHBSCWs5nHfS+N1XX2zMwfiZa21YQwBDznp/2ac5kAPjlyPx3f\nOlqGFQbg3wKBgQDi0wbNyJGkVa74Axnl4HE+cQE4oIZ27tLA9ddvDBo7DzYly9n1\nttLIU0AY/08ffUxNpoxKs3E3fSMu4JdCPMGEnZYkNh+gKhX8NkWppPkvlPROLlbB\nezoby3u13MwSZPsQJOJs5U0U06oj52Fhq1rfMLcYv/Ii2HNWkNqQLIPEhwKBgHFR\nm9bz5YLz9gkozQsUFDVXiTupVC0sKZgWolfxUluC1RjFBGJ/j8icRvsjavi1NfPW\ngHFRPGxXwDeXeJM16UIruxOSa3qrSbjNJfcbszexUehLrcWBBc/Whm/3Mu9Yx1AG\nX6S1UmCZlQfTi+Ydt3WTYlF0LcOIm6Nkfilo9M4RAoGAQoIZGTL7f75yKR2hE3sG\nJa01urRNYo5UNLUGGD2EkvfE0tJTeVMET2qcaKq7T35RGUUCdJvYqgGsaifvJgw7\nRtoPnE2aYjJz9U1D2DtJUtiC8LLl/uxAcI09V4fI1sIwq7bnOVm0kbeNBPUu42uM\nE0ADWyoIk58tAhU1kUcfWM8=\n-----END PRIVATE KEY-----\n",
-  "client_email": "sano-294@sano-sinw.iam.gserviceaccount.com",
-  "client_id": "116008191048173780962",
+  "project_id": "YOUR_PROJECT_ID",
+  "private_key_id": "YOUR_PRIVATE_KEY_ID",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY\n-----END PRIVATE KEY-----\n",
+  "client_email": "YOUR_CLIENT_EMAIL",
+  "client_id": "YOUR_CLIENT_ID",
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
   "token_uri": "https://oauth2.googleapis.com/token",
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sano-294%40sano-sinw.iam.gserviceaccount.com"
+  "client_x509_cert_url": "YOUR_CLIENT_X509_CERT_URL"
 }
